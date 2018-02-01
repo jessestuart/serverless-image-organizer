@@ -1,0 +1,9 @@
+{
+  "name": "serverless-image-organizer",
+  "description": "",
+  "memory": 128,
+  "timeout": 10,
+  "role": "arn:aws:iam::672278003389:role/image-upload-role",
+  "runtime": "golang",
+  "environment": {}
+}
