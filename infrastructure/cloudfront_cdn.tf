@@ -1,3 +1,5 @@
+variable "target_photos_bucket_name" {}
+
 variable "cloudfront_origin_id" {
   type    = "string"
   default = "S3-serverless-image-organizer"
@@ -5,7 +7,7 @@ variable "cloudfront_origin_id" {
 
 resource "aws_cloudfront_distribution" "s3_distribution" {
   origin {
-    domain_name = "${module.data-storage.photos_bucket}.s3.amazonaws.com"
+    domain_name = "${var.target_photos_bucket_name}.s3.amazonaws.com"
     origin_id   = "${var.cloudfront_origin_id}"
   }
 

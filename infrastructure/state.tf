@@ -1,5 +1,8 @@
+variable "aws_region" {}
+variable "terraform_state_backend_bucket_name" {}
+
 provider "aws" {
-  region = "us-east-1"
+  region = "${var.aws_region}"
 }
 
 # =====================================================
@@ -7,7 +10,7 @@ provider "aws" {
 # Create an S3 bucket in which to store the state file.
 # =====================================================
 resource "aws_s3_bucket" "state_storage" {
-  bucket = "js-terraform"
+  bucket = "${var.terraform_state_backend_bucket_name}"
 
   versioning {
     enabled = true

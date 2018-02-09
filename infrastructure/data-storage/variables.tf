@@ -12,3 +12,8 @@ variable "bucket_name" {
   type    = "string"
   default = "mps_upload_bucket"
 }
+
+variable "target_photos_bucket_name" {
+  type    = "string"
+  default = "js-photos"
+}
