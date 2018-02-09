@@ -7,3 +7,6 @@ terraform_state_backend_bucket_name = "js-terraform"
 source_photos_bucket_name = "mps_upload_bucket"
 
 target_photos_bucket_name = "js-photos"
+
+/* target_photos_bucket_name = "jessestuart.com-photos" */
+

@@ -17,3 +17,8 @@ variable "target_photos_bucket_name" {
   type    = "string"
   default = "js-photos"
 }
+
+variable "target_photos_bucket_name" {
+  type    = "string"
+  default = "jessestuart.com-photos"
+}
