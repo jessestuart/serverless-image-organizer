@@ -17,7 +17,7 @@ import (
 )
 
 // TargetBucketName is the bucket to which the source photos will be copied.
-const TargetBucketName string = "js-photos"
+const TargetBucketName string = "jesse.pics"
 
 // HandleRequest processes the incoming S3 PutObject event.
 func HandleRequest(ctx context.Context, event events.S3Event) (string, error) {
