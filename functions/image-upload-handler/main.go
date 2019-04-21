@@ -36,36 +36,36 @@ func HandleRequest(ctx context.Context, event events.S3Event) (string, error) {
 		Key:    aws.String(objectKey),
 	}
 
-	fmt.Println("Executing lambda for object: " + objectKey)
+	fmt.Println("Lambda triggered by upload of S3 object with key: " + objectKey)
 
 	result, err := s3Client.GetObject(getObjInput)
 	if err != nil {
 		fmt.Println(err)
-		return fmt.Sprintf("Error: %s", err), err
+		return fmt.Sprintf("Cannot fetch object: %s", err), err
 	}
 
 	exifData, err := exif.Decode(result.Body)
 	if err != nil {
 		fmt.Println(err)
-		return fmt.Sprintf("Error: %s", err), err
+		return fmt.Sprintf("Cannot decode EXIF data: %s", err), err
 	}
 
 	datetime, _ := exifData.DateTime()
 	response := "Date created: " + datetime.Format(time.RFC3339)
 
 	dateString := datetime.Format("2006-01-02")
-	// isoString := datetime.Format(time.RFC3339)
 
+	// Next, we'll copy the object from the source to the target S3 bucket, using
+	// the datetime obtained from EXIF data to structure the directory tree.
 	copyObjInput := &s3.CopyObjectInput{
 		Bucket:     aws.String(TargetBucketName),
 		CopySource: aws.String(fmt.Sprintf("/%s/%s", bucketName, objectKey)),
-		Key: aws.String(
-			fmt.Sprintf("/%s/%s", dateString, objectKey),
-		),
+		Key:        aws.String(fmt.Sprintf("/%s/%s", dateString, objectKey)),
 	}
-
 	copyResult, err := s3Client.CopyObject(copyObjInput)
+
 	if err != nil {
+		// Copy S3 object operation failed.
 		if aerr, ok := err.(awserr.Error); ok {
 			switch aerr.Code() {
 			case s3.ErrCodeObjectNotInActiveTierError:
@@ -81,23 +81,24 @@ func HandleRequest(ctx context.Context, event events.S3Event) (string, error) {
 		return fmt.Sprintf(copyResult.GoString()), err
 	}
 
+	// Delete the source object to clean up after ourselves.
 	deleteObjectInput := &s3.DeleteObjectInput{
 		Bucket: aws.String(bucketName),
 		Key:    aws.String(objectKey),
 	}
-
 	deleteObjResult, err := s3Client.DeleteObject(deleteObjectInput)
 	fmt.Println(deleteObjResult)
 	if err != nil {
-		fmt.Println("Error deleting original object.")
+		fmt.Println("Error deleting source object.")
 		return fmt.Sprintf("Error: "), err
 	}
 
-	fmt.Println(result)
+	fmt.Println(fmt.Sprintf("Operation completed successfully: %s", result))
 
 	return fmt.Sprintf(response), nil
 }
 
 func main() {
+	fmt.Println("Hello world")
 	lambda.Start(HandleRequest)
 }

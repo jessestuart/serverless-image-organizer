@@ -1,8 +1,8 @@
 {
   "name": "serverless-image-organizer",
-  "description": "",
-  "memory": 128,
-  "timeout": 10,
+  "description": "Input a mess of JPEG's, output a well-structured tree sorted by date. Trigger a CI build to rebuild your site/blog when complete.",
+  "memory": 256,
+  "timeout": 30,
   "role": "arn:aws:iam::672278003389:role/image-upload-role",
   "runtime": "golang",
   "environment": {}

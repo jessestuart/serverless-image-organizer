@@ -10,5 +10,5 @@ variable "aws_region" {
 
 variable "bucket_name" {
   type    = "string"
-  default = "mps_upload_bucket"
+  default = "upload-jesse-pics"
 }
