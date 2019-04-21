@@ -3,6 +3,9 @@ package main
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
+	"net/http"
+	"os"
 	"time"
 
 	"github.com/aws/aws-lambda-go/events"
@@ -18,6 +21,11 @@ import (
 
 // TargetBucketName is the bucket to which the source photos will be copied.
 const TargetBucketName string = "jesse.pics"
+
+// NetlifyWebhookURL is the netlify-provided webhook to trigger a rebuild of
+// your site after image processing is complete.
+// Can be left empty if that's not your jam.
+var NetlifyWebhookURL = os.Getenv("JESSESIO_NETLIFY_WEBHOOK")
 
 // HandleRequest processes the incoming S3 PutObject event.
 func HandleRequest(ctx context.Context, event events.S3Event) (string, error) {
@@ -93,12 +101,31 @@ func HandleRequest(ctx context.Context, event events.S3Event) (string, error) {
 		return fmt.Sprintf("Error: "), err
 	}
 
-	fmt.Println(fmt.Sprintf("Operation completed successfully: %s", result))
+	fmt.Println(fmt.Sprintf("S3 object copy completed successfully: %s", result))
+
+	NotifyNetlify()
 
 	return fmt.Sprintf(response), nil
 }
 
+// NotifyNetlify sends an HTTP POST to Netlify to trigger a build after image
+// processing is complete.
+func NotifyNetlify() (string, error) {
+	url := NetlifyWebhookURL
+
+	req, err := http.NewRequest("POST", url, nil)
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		panic(err)
+	}
+	defer resp.Body.Close()
+
+	body, _ := ioutil.ReadAll(resp.Body)
+	return fmt.Sprintf("Netlify response: %s", string(body)), nil
+}
+
 func main() {
-	fmt.Println("Hello world")
 	lambda.Start(HandleRequest)
 }
